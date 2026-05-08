@@ -1,4 +1,5 @@
-dsmon
+dpskmon
+dist/
 deepseek-monitor-tui.json
 cmd/testapi/testapi
 testapi

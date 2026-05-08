@@ -1,10 +1,12 @@
-.PHONY: build run install clean config
+.PHONY: build run install clean config tidy fmt release-assets publish-release
 
 # Binary name
-BINARY=dsmon
+BINARY=dpskmon
 
 # Install path for cmux Dock
 INSTALL_PATH?=$(HOME)/.local/bin
+OUTPUT_DIR?=dist
+TAG?=
 
 build:
 	go build -o $(BINARY) .
@@ -34,3 +36,11 @@ tidy:
 
 fmt:
 	go fmt ./...
+
+release-assets:
+	@test -n "$(TAG)" || (echo "TAG is required, e.g. make release-assets TAG=v1.2.3" && exit 1)
+	bash scripts/build-release-assets.sh "$(TAG)" "$(OUTPUT_DIR)"
+
+publish-release:
+	@test -n "$(TAG)" || (echo "TAG is required, e.g. make publish-release TAG=v1.2.3" && exit 1)
+	bash scripts/publish-release.sh "$(TAG)" "$(OUTPUT_DIR)"
