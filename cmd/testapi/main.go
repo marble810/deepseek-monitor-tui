@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"deepseekMon/api"
-	"deepseekMon/config"
+	"deepseek-monitor-tui/api"
+	"deepseek-monitor-tui/config"
 )
 
 func main() {

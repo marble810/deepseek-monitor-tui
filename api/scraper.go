@@ -306,7 +306,7 @@ func (r *UsageAmountResponse) ToUsageResponse() *UsageResponse {
 	}
 }
 
-func latestDayOnOrBefore(days []DayUsage, now time.Time) *DayUsage {
+func LatestDayOnOrBefore(days []DayUsage, now time.Time) *DayUsage {
 	if len(days) == 0 {
 		return nil
 	}
@@ -330,7 +330,7 @@ func latestDayOnOrBefore(days []DayUsage, now time.Time) *DayUsage {
 	return &days[len(days)-1]
 }
 
-func usageResponseFromModels(models []ModelUsage) *UsageResponse {
+func UsageResponseFromModels(models []ModelUsage) *UsageResponse {
 	var totalRequests, inputTokens, outputTokens, cachedTokens int
 	var breakdown []ModelUsageBreakdown
 	for _, model := range models {
@@ -378,7 +378,7 @@ func usageResponseFromModels(models []ModelUsage) *UsageResponse {
 	}
 }
 
-func costResponseFromModels(models []ModelUsage, result *CostResponse) {
+func CostResponseFromModels(models []ModelUsage, result *CostResponse) {
 	for _, model := range models {
 		var modelCost float64
 		for _, item := range model.Usage {
@@ -393,12 +393,12 @@ func costResponseFromModels(models []ModelUsage, result *CostResponse) {
 
 // ToUsageResponse1d converts the latest day's usage into a UsageResponse.
 func (r *UsageAmountResponse) ToUsageResponse1d() *UsageResponse {
-	latest := latestDayOnOrBefore(r.Data.BizData.Days, time.Now())
+	latest := LatestDayOnOrBefore(r.Data.BizData.Days, time.Now())
 	if latest == nil {
 		return nil
 	}
 
-	return usageResponseFromModels(latest.Data)
+	return UsageResponseFromModels(latest.Data)
 }
 
 // ToCostResponse1d converts the latest day's cost into a CostResponse.
@@ -409,11 +409,11 @@ func (r *UsageCostResponse) ToCostResponse1d() *CostResponse {
 	}
 
 	for _, bizData := range r.Data.BizData {
-		latest := latestDayOnOrBefore(bizData.Days, time.Now())
+		latest := LatestDayOnOrBefore(bizData.Days, time.Now())
 		if latest == nil {
 			continue
 		}
-		costResponseFromModels(latest.Data, result)
+		CostResponseFromModels(latest.Data, result)
 	}
 
 	return result
@@ -427,7 +427,7 @@ func (r *UsageCostResponse) ToCostResponse() *CostResponse {
 		CostByModel: make(CostByModel),
 	}
 	for _, bizData := range r.Data.BizData {
-		costResponseFromModels(bizData.Total, result)
+		CostResponseFromModels(bizData.Total, result)
 	}
 	return result
 }

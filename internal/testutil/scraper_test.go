@@ -1,32 +1,34 @@
-package api
+package testutil
 
 import (
 	"testing"
 	"time"
+
+	"deepseek-monitor-tui/api"
 )
 
 func TestLatestDayOnOrBeforeIgnoresFuturePlaceholders(t *testing.T) {
 	now := time.Date(2026, time.May, 8, 12, 0, 0, 0, time.UTC)
-	days := []DayUsage{
+	days := []api.DayUsage{
 		{
 			Date: "2026-05-08",
-			Data: []ModelUsage{{
+			Data: []api.ModelUsage{{
 				Model: "deepseek-v4-pro",
-				Usage: []UsageItem{{Type: "REQUEST", Amount: "260"}},
+				Usage: []api.UsageItem{{Type: "REQUEST", Amount: "260"}},
 			}},
 		},
 		{
 			Date: "2026-05-31",
-			Data: []ModelUsage{{
+			Data: []api.ModelUsage{{
 				Model: "deepseek-v4-pro",
-				Usage: []UsageItem{{Type: "REQUEST", Amount: "0"}},
+				Usage: []api.UsageItem{{Type: "REQUEST", Amount: "0"}},
 			}},
 		},
 	}
 
-	got := latestDayOnOrBefore(days, now)
+	got := api.LatestDayOnOrBefore(days, now)
 	if got == nil {
-		t.Fatal("latestDayOnOrBefore returned nil")
+		t.Fatal("LatestDayOnOrBefore returned nil")
 	}
 	if got.Date != "2026-05-08" {
 		t.Fatalf("expected 2026-05-08, got %s", got.Date)
@@ -35,13 +37,13 @@ func TestLatestDayOnOrBeforeIgnoresFuturePlaceholders(t *testing.T) {
 
 func TestUsageResponse1dUsesCurrentDayData(t *testing.T) {
 	now := time.Date(2026, time.May, 8, 12, 0, 0, 0, time.UTC)
-	resp := &UsageAmountResponse{}
-	resp.Data.BizData.Days = []DayUsage{
+	resp := &api.UsageAmountResponse{}
+	resp.Data.BizData.Days = []api.DayUsage{
 		{
 			Date: "2026-05-08",
-			Data: []ModelUsage{{
+			Data: []api.ModelUsage{{
 				Model: "deepseek-v4-pro",
-				Usage: []UsageItem{
+				Usage: []api.UsageItem{
 					{Type: "PROMPT_CACHE_HIT_TOKEN", Amount: "10"},
 					{Type: "PROMPT_CACHE_MISS_TOKEN", Amount: "5"},
 					{Type: "RESPONSE_TOKEN", Amount: "3"},
@@ -51,9 +53,9 @@ func TestUsageResponse1dUsesCurrentDayData(t *testing.T) {
 		},
 		{
 			Date: "2026-05-31",
-			Data: []ModelUsage{{
+			Data: []api.ModelUsage{{
 				Model: "deepseek-v4-pro",
-				Usage: []UsageItem{
+				Usage: []api.UsageItem{
 					{Type: "PROMPT_CACHE_HIT_TOKEN", Amount: "0"},
 					{Type: "PROMPT_CACHE_MISS_TOKEN", Amount: "0"},
 					{Type: "RESPONSE_TOKEN", Amount: "0"},
@@ -63,12 +65,12 @@ func TestUsageResponse1dUsesCurrentDayData(t *testing.T) {
 		},
 	}
 
-	day := latestDayOnOrBefore(resp.Data.BizData.Days, now)
+	day := api.LatestDayOnOrBefore(resp.Data.BizData.Days, now)
 	if day == nil {
 		t.Fatal("selected day was nil")
 	}
 
-	got := usageResponseFromModels(day.Data)
+	got := api.UsageResponseFromModels(day.Data)
 	if got.TotalRequests != 2 {
 		t.Fatalf("expected 2 requests, got %d", got.TotalRequests)
 	}
@@ -88,15 +90,15 @@ func TestUsageResponse1dUsesCurrentDayData(t *testing.T) {
 
 func TestCostResponse1dUsesCurrentDayData(t *testing.T) {
 	now := time.Date(2026, time.May, 8, 12, 0, 0, 0, time.UTC)
-	resp := &UsageCostResponse{}
-	resp.Data.BizData = []UsageAmountData{
+	resp := &api.UsageCostResponse{}
+	resp.Data.BizData = []api.UsageAmountData{
 		{
-			Days: []DayUsage{
+			Days: []api.DayUsage{
 				{
 					Date: "2026-05-08",
-					Data: []ModelUsage{{
+					Data: []api.ModelUsage{{
 						Model: "deepseek-v4-pro",
-						Usage: []UsageItem{
+						Usage: []api.UsageItem{
 							{Type: "PROMPT_CACHE_HIT_TOKEN", Amount: "0.25"},
 							{Type: "PROMPT_CACHE_MISS_TOKEN", Amount: "1.50"},
 							{Type: "RESPONSE_TOKEN", Amount: "0.75"},
@@ -105,9 +107,9 @@ func TestCostResponse1dUsesCurrentDayData(t *testing.T) {
 				},
 				{
 					Date: "2026-05-31",
-					Data: []ModelUsage{{
+					Data: []api.ModelUsage{{
 						Model: "deepseek-v4-pro",
-						Usage: []UsageItem{
+						Usage: []api.UsageItem{
 							{Type: "PROMPT_CACHE_HIT_TOKEN", Amount: "0"},
 							{Type: "PROMPT_CACHE_MISS_TOKEN", Amount: "0"},
 							{Type: "RESPONSE_TOKEN", Amount: "0"},
@@ -118,13 +120,13 @@ func TestCostResponse1dUsesCurrentDayData(t *testing.T) {
 		},
 	}
 
-	day := latestDayOnOrBefore(resp.Data.BizData[0].Days, now)
+	day := api.LatestDayOnOrBefore(resp.Data.BizData[0].Days, now)
 	if day == nil {
 		t.Fatal("selected cost day was nil")
 	}
 
-	got := &CostResponse{Currency: "CNY", CostByModel: make(CostByModel)}
-	costResponseFromModels(day.Data, got)
+	got := &api.CostResponse{Currency: "CNY", CostByModel: make(api.CostByModel)}
+	api.CostResponseFromModels(day.Data, got)
 	if got.TotalCost != 2.5 {
 		t.Fatalf("expected total cost 2.5, got %v", got.TotalCost)
 	}
@@ -134,12 +136,12 @@ func TestCostResponse1dUsesCurrentDayData(t *testing.T) {
 }
 
 func TestToBalanceResponseAggregatesNormalAndBonusWallets(t *testing.T) {
-	resp := &UserSummaryResponse{}
-	resp.Data.BizData.NormalWallets = []WalletInfo{{
+	resp := &api.UserSummaryResponse{}
+	resp.Data.BizData.NormalWallets = []api.WalletInfo{{
 		Currency: "CNY",
 		Balance:  "12.5",
 	}}
-	resp.Data.BizData.BonusWallets = []WalletInfo{{
+	resp.Data.BizData.BonusWallets = []api.WalletInfo{{
 		Currency: "CNY",
 		Balance:  "3.25",
 	}}

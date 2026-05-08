@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"deepseekMon/api"
-	"deepseekMon/config"
-	"deepseekMon/ui"
+	"deepseek-monitor-tui/api"
+	"deepseek-monitor-tui/config"
+	"deepseek-monitor-tui/ui"
 
 	"github.com/atotto/clipboard"
 	tea "github.com/charmbracelet/bubbletea"

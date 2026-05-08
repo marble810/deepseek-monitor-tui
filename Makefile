@@ -1,7 +1,7 @@
 .PHONY: build run install clean config
 
 # Binary name
-BINARY=deepseekMon
+BINARY=dsmon
 
 # Install path for cmux Dock
 INSTALL_PATH?=$(HOME)/.local/bin
@@ -19,11 +19,11 @@ install: build
 	@echo "Make sure $(INSTALL_PATH) is in your PATH, or update .cmux/dock.json command path."
 
 config:
-	@if [ ! -f deepseekMon.json ]; then \
-		echo '{"platform_token": "your-platform-bearer-token-here"}' > deepseekMon.json; \
-		echo "Created deepseekMon.json — edit it with your real Bearer token."; \
+	@if [ ! -f deepseek-monitor-tui.json ]; then \
+		echo '{"platform_token": "your-platform-bearer-token-here"}' > deepseek-monitor-tui.json; \
+		echo "Created deepseek-monitor-tui.json — edit it with your real Bearer token."; \
 	else \
-		echo "deepseekMon.json already exists."; \
+		echo "deepseek-monitor-tui.json already exists."; \
 	fi
 
 clean:

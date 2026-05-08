@@ -1,4 +1,4 @@
-module deepseekMon
+module deepseek-monitor-tui
 
 go 1.25.0
 

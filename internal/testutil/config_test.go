@@ -1,27 +1,30 @@
-package config
+package testutil
 
 import (
 	"os"
 	"testing"
 	"time"
+
+	"deepseek-monitor-tui/config"
 )
 
 func TestSelectedTabDefaultsTo30d(t *testing.T) {
-	var cfg Config
+	cfg := config.NewForTest()
 	if got := cfg.SelectedTab(); got != 0 {
 		t.Fatalf("expected default tab 0, got %d", got)
 	}
 }
 
 func TestSelectedTabSupports1d(t *testing.T) {
-	cfg := Config{DefaultPeriod: "1d"}
+	cfg := config.NewForTest()
+	cfg.DefaultPeriod = "1d"
 	if got := cfg.SelectedTab(); got != 1 {
 		t.Fatalf("expected tab 1, got %d", got)
 	}
 }
 
 func TestUsageVisibilityDefaultsToShown(t *testing.T) {
-	var cfg Config
+	cfg := config.NewForTest()
 	if !cfg.RequestsVisible() {
 		t.Fatal("expected requests to be visible by default")
 	}
@@ -47,7 +50,7 @@ func TestLoadSupportsPlatformTokenEnv(t *testing.T) {
 	}
 	t.Setenv("DEEPSEEK_PLATFORM_TOKEN", "token-from-env")
 
-	cfg, err := Load()
+	cfg, err := config.Load()
 	if err != nil {
 		t.Fatalf("Load() error = %v", err)
 	}
@@ -70,20 +73,21 @@ func TestLoadRequiresPlatformToken(t *testing.T) {
 	}
 	t.Setenv("DEEPSEEK_PLATFORM_TOKEN", "")
 
-	if _, err := Load(); err == nil {
+	if _, err := config.Load(); err == nil {
 		t.Fatal("expected missing token error")
 	}
 }
 
 func TestQueryIntervalUsesConfiguredSeconds(t *testing.T) {
-	cfg := Config{QueryIntervalSeconds: 11}
+	cfg := config.NewForTest()
+	cfg.QueryIntervalSeconds = 11
 	if got := cfg.QueryInterval(); got != 11*time.Second {
 		t.Fatalf("expected 11s, got %v", got)
 	}
 }
 
 func TestQueryIntervalDefaultsTo30s(t *testing.T) {
-	var cfg Config
+	cfg := config.NewForTest()
 	if got := cfg.QueryInterval(); got != 30*time.Second {
 		t.Fatalf("expected 30s default, got %v", got)
 	}

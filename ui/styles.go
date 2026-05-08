@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"deepseekMon/api"
+	"deepseek-monitor-tui/api"
 
 	"github.com/charmbracelet/lipgloss"
 )

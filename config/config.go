@@ -21,18 +21,18 @@ type Config struct {
 
 // Load reads config from these locations (first found wins):
 //
-//  1. ./deepseekMon.json (working directory)
-//  2. ~/.config/deepseekMon/config.json
+//  1. ./deepseek-monitor-tui.json (working directory)
+//  2. ~/.config/deepseek-monitor-tui/config.json
 //  3. DEEPSEEK_PLATFORM_TOKEN environment variable (fallback)
 //
 // PlatformToken is required. UI preferences are optional.
 func Load() (*Config, error) {
 	paths := []string{
-		"deepseekMon.json",
+		"deepseek-monitor-tui.json",
 	}
 
 	if home, err := os.UserHomeDir(); err == nil {
-		paths = append(paths, filepath.Join(home, ".config", "deepseekMon", "config.json"))
+		paths = append(paths, filepath.Join(home, ".config", "deepseek-monitor-tui", "config.json"))
 	}
 
 	for _, p := range paths {
@@ -43,12 +43,12 @@ func Load() (*Config, error) {
 	}
 
 	if token := os.Getenv("DEEPSEEK_PLATFORM_TOKEN"); token != "" {
-		return &Config{PlatformToken: token, configPath: "deepseekMon.json"}, nil
+		return &Config{PlatformToken: token, configPath: "deepseek-monitor-tui.json"}, nil
 	}
 
 	return nil, fmt.Errorf(
-		"no platform bearer token found. Create deepseekMon.json with {\"platform_token\":\"...\"}, " +
-			"or ~/.config/deepseekMon/config.json, or set DEEPSEEK_PLATFORM_TOKEN",
+		"no platform bearer token found. Create deepseek-monitor-tui.json with {\"platform_token\":\"...\"}, " +
+			"or ~/.config/deepseek-monitor-tui/config.json, or set DEEPSEEK_PLATFORM_TOKEN",
 	)
 }
 
@@ -126,6 +126,11 @@ func boolOrDefault(value *bool, fallback bool) bool {
 		return fallback
 	}
 	return *value
+}
+
+// NewForTest returns a minimal Config suitable for tests.
+func NewForTest() *Config {
+	return &Config{configPath: ""}
 }
 
 // ExampleConfig returns a sample config JSON for bootstrapping.
